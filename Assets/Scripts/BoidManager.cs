@@ -8,8 +8,6 @@ public class BoidManager : MonoBehaviour
     [SerializeField] private Boids boidPrefab;
 
     private List<Boids> _boidList;
-    private Boids _tempBoid;
-    private float _tempDistance;
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
@@ -31,22 +29,18 @@ public class BoidManager : MonoBehaviour
         {
             Boids _tempBoid = _boidList[i];
 
-            //Debug.Log("Current Boid position is " + _tempBoid.transform.position);
+            _tempBoid.transform.position = _tempBoid.transform.position + _tempBoid.BoidVelocity;
 
             for (int j = i + 1; j < _boidList.Count; ++j)
             {
                 float _tempDistance = Vector3.Distance(_tempBoid.transform.position, _boidList[j].transform.position);
 
-                //Debug.Log("The distance between boid " + i + " and " + j + " is: " + _tempDistance);
-
                 if (_tempDistance <= _tempBoid.VisualRange)
                 {
                     if (_tempBoid.SeparationTreshold <= _tempDistance)
                     {
-                        Debug.Log("Halloooo");
-                       _tempBoid.transform.position = _tempBoid.transform.position + new Vector3(1, 2, 3);
+                       _tempBoid.transform.position = _tempBoid.transform.position + _tempBoid.BoidVelocity * .01f;
                     }
-                    //Debug.Log(_tempDistance);
                 }
             }
 

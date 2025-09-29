@@ -5,9 +5,17 @@ public class Boids : MonoBehaviour
     [SerializeField] private float visualRange = 40;
     [SerializeField] private float separationTreshold = 10;
 
+    private Vector3 _velocity;
+
+
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
+        _velocity = new Vector3(
+            Random.Range(0f, .01f),
+            Random.Range(0f, .01f),
+            Random.Range(0f, .01f)
+            );
         transform.position = new Vector3(
             Random.Range(0f, 100f),
             Random.Range(0f, 100f),
@@ -34,5 +42,10 @@ public class Boids : MonoBehaviour
     public float SeparationTreshold
     {
         get { return separationTreshold; }
+    }
+
+    public Vector3 BoidVelocity
+    {
+        get { return _velocity; }
     }
 }
