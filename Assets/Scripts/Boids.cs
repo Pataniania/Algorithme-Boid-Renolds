@@ -2,7 +2,8 @@ using UnityEngine;
 
 public class Boids : MonoBehaviour
 {
-    [SerializeField] private float visualRange = 20;
+    [SerializeField] private float visualRange = 40;
+    [SerializeField] private float separationTreshold = 10;
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
@@ -29,5 +30,9 @@ public class Boids : MonoBehaviour
     public float VisualRange
     {
         get { return visualRange; }
+    }
+    public float SeparationTreshold
+    {
+        get { return separationTreshold; }
     }
 }

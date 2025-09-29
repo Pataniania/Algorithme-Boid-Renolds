@@ -30,16 +30,22 @@ public class BoidManager : MonoBehaviour
         for (int i = 0; i < _boidList.Count; i++)
         {
             Boids _tempBoid = _boidList[i];
-            Debug.Log("Current Boid position is " + _tempBoid.transform.position);
+
+            //Debug.Log("Current Boid position is " + _tempBoid.transform.position);
 
             for (int j = i + 1; j < _boidList.Count; ++j)
             {
                 float _tempDistance = Vector3.Distance(_tempBoid.transform.position, _boidList[j].transform.position);
 
-                Debug.Log("The distance between boid " + i + " and " + j + " is: " + _tempDistance);
+                //Debug.Log("The distance between boid " + i + " and " + j + " is: " + _tempDistance);
 
                 if (_tempDistance <= _tempBoid.VisualRange)
                 {
+                    if (_tempBoid.SeparationTreshold <= _tempDistance)
+                    {
+                        Debug.Log("Halloooo");
+                       _tempBoid.transform.position = _tempBoid.transform.position + new Vector3(1, 2, 3);
+                    }
                     //Debug.Log(_tempDistance);
                 }
             }
