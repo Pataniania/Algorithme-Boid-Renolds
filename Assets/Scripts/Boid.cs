@@ -120,7 +120,7 @@ public class Boid : MonoBehaviour
     {
         Vector3 force = Vector3.zero;
 
-        if (Mathf.Abs(transform.position.x) < bounds - boundsThreshold)
+        if (Mathf.Abs(transform.position.x) > bounds - boundsThreshold)
         {
             force.x = -Mathf.Sign(transform.position.x) * boundsForce;
         }
