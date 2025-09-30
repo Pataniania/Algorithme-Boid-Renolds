@@ -1,9 +1,18 @@
 using UnityEngine;
 
+public enum BoidsType
+{
+    BASE,
+    LEADER
+}
+
 public class Boids : MonoBehaviour
 {
     [SerializeField] private float visualRange = 40;
     [SerializeField] private float separationTreshold = 10;
+
+
+    [SerializeField] private BoidsType type = BoidsType.BASE;
 
     private Vector3 _velocity;
 
@@ -12,15 +21,32 @@ public class Boids : MonoBehaviour
     void Start()
     {
         _velocity = new Vector3(
-            Random.Range(0f, .01f),
-            Random.Range(0f, .01f),
-            Random.Range(0f, .01f)
+            Random.Range(0f, .1f),
+            Random.Range(0f, .1f),
+            Random.Range(0f, .1f)
             );
         transform.position = new Vector3(
             Random.Range(0f, 100f),
             Random.Range(0f, 100f),
             Random.Range(0f, 100f)
             );
+
+        if( type == BoidsType.LEADER )
+        {
+            _velocity = new Vector3(
+             Random.Range(0f, 1f),
+             Random.Range(0f, 1f),
+             Random.Range(0f, 1f)
+            );
+
+            transform.position = new Vector3(
+            Random.Range(50f, 100f),
+            Random.Range(50f, 100f),
+            Random.Range(50f, 100f)
+            );
+
+
+        }
     }
 
     // Update is called once per frame
@@ -47,5 +73,6 @@ public class Boids : MonoBehaviour
     public Vector3 BoidVelocity
     {
         get { return _velocity; }
+        set { _velocity = value; }
     }
 }
