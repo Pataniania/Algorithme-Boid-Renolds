@@ -80,7 +80,7 @@ public class Boid : MonoBehaviour
                 alignmentWeight = 0f;
                 cohesionWeight = 0.1f;
                 centerOfMassWeight = 0.1f;
-                maxSpeed = 6.5f;
+                maxSpeed = 4.5f;
                 maxForce = 0.8f;
                 boundsForce = 5f;
                 GetComponent<Renderer>().material = heraticMaterial;
@@ -88,12 +88,9 @@ public class Boid : MonoBehaviour
 
             case BoidProfiles.POTOFGLUE:
                 visionRadius = 6f;
-                separationWeight = 2f;
+                separationWeight = .1f;
                 alignmentWeight = 0.8f;
-                cohesionWeight = 1.5f;
-                centerOfMassWeight = 1.5f;
-                maxSpeed = 1.2f;
-                maxForce = 0.2f;
+                maxForce = .8f;
                 boundsForce = 12f;
                 GetComponent<Renderer>().material = potoMaterial;
                 break;

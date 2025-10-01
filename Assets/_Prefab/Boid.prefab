@@ -127,9 +127,9 @@ MonoBehaviour:
   potoMaterial: {fileID: 2100000, guid: ee8384872dee8124ca697f5feeac717d, type: 2}
   heraticMaterial: {fileID: 2100000, guid: f7e5ad25b8c4acf458a08d46634f8a6f, type: 2}
   visionRadius: 5
-  separationWeight: 1.5
-  alignmentWeight: 7.23
-  cohesionWeight: 0.5
+  separationWeight: 1
+  alignmentWeight: 1
+  cohesionWeight: 1
   centerOfMassWeight: 1
   maxSpeed: 5
   maxForce: 1
