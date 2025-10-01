@@ -1,94 +1,92 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 
 public class Boid : MonoBehaviour
 {
-    public float visionRadius = 5f;
+    [SerializeField] private float visionRadius = 5f;
 
-    public float separationWeight = 1.5f;
-    public float alignmentWeight = 1.0f;
-    public float cohesionWeight = 1.0f;
-    public float centerOfMassWeight = 1.0f;
+    [SerializeField] private float separationWeight = 1.5f;
+    [SerializeField] private float alignmentWeight = 1.0f;
+    [SerializeField] private float cohesionWeight = 1.0f;
+    [SerializeField] private float centerOfMassWeight = 1.0f;
 
-    public float maxSpeed = 5f;
-    public float maxForce = 0.5f;
+    [SerializeField] private float maxSpeed = 5f;
+    [SerializeField] private float maxForce = 0.5f;
 
-    public float bounds = 10f;
-    public float boundsForce = 10f; // force applique quand on se rapproche du bord
-    public float boundsThreshold = 10f; //distance a partir du bord pour declencher la force
+    [SerializeField] private float bounds = 10f;
+    //Force applied to the boid when it's near the border
+    [SerializeField] private float boundsForce = 10f;
+    //Distance from the border where the force is applied
+    [SerializeField] private float boundsThreshold = 10f;
 
-    private Vector3 velocity;
-    private Vector3 acceleration;
+    private Vector3 _velocity;
+    private Vector3 _acceleration;
 
-    // liste globale de tous les boids
-    public static List<Boid> allBoids = new List<Boid>();
+    private static List<Boid> _boidList = new List<Boid>();
 
-    void OnEnable() => allBoids.Add(this);
-    void OnDisable() => allBoids.Remove(this);
+    private List<Boid> _neighborBuffer = new List<Boid>(100);
+    private List<Boid> _neighbors;
+
+    void OnEnable() => _boidList.Add(this);
+    void OnDisable() => _boidList.Remove(this);
 
     void Start()
     {
-        velocity = Random.insideUnitSphere * maxSpeed;
+        _velocity = UnityEngine.Random.insideUnitSphere * maxSpeed;
     }
 
     void Update()
     {
-        acceleration = Vector3.zero;
+        _acceleration = Vector3.zero;
 
-        List<Boid> neighbors = GetNeighbors();
+        _neighbors = GetNeighbors();
 
-        if (neighbors.Count > 0)
-        {
-            Vector3 sep = Separation(neighbors) * separationWeight;
-            Vector3 ali = Alignment(neighbors) * alignmentWeight;
-            Vector3 coh = Cohesion(neighbors) * cohesionWeight;
+        ApplyForcesToBoid();
 
-            acceleration += sep + ali + coh;
-        }
+        //Update the boid velocity and clamp it
+        UpdateBoidVelocity();
 
-        // add de la force de rappel pour rester in bound
-        acceleration += KeepInBounds();
+        transform.position += _velocity * Time.deltaTime;
 
-        // force du centre de masse
-        acceleration += CenterOfMassForce() * centerOfMassWeight;
+        UpdateLookDir();
+    }
 
-        // clamp la force finale
-        acceleration = Vector3.ClampMagnitude(acceleration, maxForce);
-
-        // update velocity + pos
-        velocity += acceleration * Time.deltaTime;
-        velocity = Vector3.ClampMagnitude(velocity, maxSpeed);
-
-        transform.position += velocity * Time.deltaTime;
-
-        if (velocity.sqrMagnitude > 0.01f)
-            transform.forward = velocity.normalized;
+    private void UpdateLookDir()
+    {
+        if (_velocity.sqrMagnitude > 0.01f)
+            transform.forward = _velocity.normalized;
     }
 
     List<Boid> GetNeighbors()
     {
-        List<Boid> neighbors = new List<Boid>();
-        foreach (Boid other in allBoids)
+        _neighborBuffer.Clear();
+
+        foreach (Boid other in _boidList)
         {
             if (other == this) continue;
 
-            float dist = (other.transform.position - transform.position).magnitude;
+            float dist = (other.transform.position - transform.position).sqrMagnitude;
+
             if (dist < visionRadius)
             {
-                neighbors.Add(other);
+                _neighborBuffer.Add(other);
             }
         }
-        return neighbors;
+        return _neighborBuffer;
     }
 
     Vector3 Separation(List<Boid> neighbors)
     {
         Vector3 steer = Vector3.zero;
+
         foreach (Boid other in neighbors)
         {
             Vector3 diff = transform.position - other.transform.position;
+
             float dist = diff.magnitude;
-            if (dist > 0)
+
+            if (dist > 0) 
                 steer += diff.normalized / dist; // plus proche = push plus fort
         }
         return steer;
@@ -96,31 +94,23 @@ public class Boid : MonoBehaviour
 
     Vector3 Alignment(List<Boid> neighbors)
     {
-        Vector3 avgVelocity = Vector3.zero;
-        foreach (Boid other in neighbors)
-        {
-            avgVelocity += other.velocity;
-        }
-        avgVelocity /= neighbors.Count;
-        return avgVelocity - velocity; // steering vers la moyenne
+        return SteerTowardsAverage(neighbors, b => b._velocity, _velocity);
     }
 
     Vector3 Cohesion(List<Boid> neighbors)
     {
-        Vector3 center = Vector3.zero;
-        foreach (Boid other in neighbors)
-        {
-            center += other.transform.position;
-        }
-        center /= neighbors.Count;
-        return (center - transform.position);
+        return SteerTowardsAverage(neighbors, b => b.transform.position, transform.position);
     }
 
+    Vector3 ApplyCenterOfMassForce()
+    {
+       return SteerTowardsAverage(_boidList, b => b.transform.position, transform.position);
+    }
     Vector3 KeepInBounds()
     {
         Vector3 force = Vector3.zero;
 
-        if (Mathf.Abs(transform.position.x) < bounds - boundsThreshold)
+        if (Mathf.Abs(transform.position.x) > bounds - boundsThreshold)
         {
             force.x = -Mathf.Sign(transform.position.x) * boundsForce;
         }
@@ -138,20 +128,41 @@ public class Boid : MonoBehaviour
         return force;
     }
 
-    Vector3 CenterOfMassForce()
+
+    Vector3 SteerTowardsAverage(List<Boid> neighbors, Func<Boid, Vector3> selector, Vector3 currentPosition)
     {
-        if (allBoids.Count == 0)
+        if (neighbors.Count == 0) return Vector3.zero;
+
+        Vector3 average = Vector3.zero;
+
+        foreach (Boid b in neighbors)
         {
-            return Vector3.zero;
+            average += selector(b);
+        }
+        average /= neighbors.Count;
+
+        return average - currentPosition;
+    }
+
+    private void ApplyForcesToBoid()
+    {
+        if (_neighbors.Count > 0)
+        {
+            Vector3 _separation = Separation(_neighbors) * separationWeight;
+            Vector3 _alignment = Alignment(_neighbors) * alignmentWeight;
+            Vector3 _cohesion = Cohesion(_neighbors) * cohesionWeight;
+
+            _acceleration += _separation + _alignment + _cohesion;
         }
 
-        Vector3 com = Vector3.zero;
-        foreach (Boid b in allBoids)
-        {
-            com += b.transform.position;
-        }
-        com /= allBoids.Count;
+        _acceleration += KeepInBounds();
+        _acceleration += ApplyCenterOfMassForce() * centerOfMassWeight;
+        _acceleration = Vector3.ClampMagnitude(_acceleration, maxForce);
+    }
 
-        return (com - transform.position);
+    private void UpdateBoidVelocity()
+    {
+        _velocity += _acceleration * Time.deltaTime;
+        _velocity = Vector3.ClampMagnitude(_velocity, maxSpeed);
     }
 }

@@ -2,11 +2,19 @@ using UnityEngine;
 
 public class BoidSpawner : MonoBehaviour
 {
-    public GameObject boidPrefab;
-    public int boidCount = 50;
-    public float spawnRadius = 10f;
+    [SerializeField] private GameObject boidPrefab;
+    [SerializeField] private int boidCount = 50;
+    [SerializeField] private float spawnRadius = 10f;
+
+
 
     void Start()
+    {
+        SpawnBoid();
+    }
+
+
+    private void SpawnBoid()
     {
         for (int i = 0; i < boidCount; i++)
         {

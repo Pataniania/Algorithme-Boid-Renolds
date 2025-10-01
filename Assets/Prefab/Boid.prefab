@@ -121,4 +121,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4f3ea4c5f6fb0e6429f5bb1e1ddc1389, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  VisionRange: 10
+  visionRadius: 5
+  separationWeight: 2
+  alignmentWeight: 1
+  cohesionWeight: 1
+  centerOfMassWeight: 1
+  maxSpeed: 5
+  maxForce: 0.5
+  bounds: 10
+  boundsForce: 10
+  boundsThreshold: 10
