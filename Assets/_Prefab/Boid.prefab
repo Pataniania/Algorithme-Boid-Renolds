@@ -1,6 +1,6 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
---- !u!1 &3118979876328676307
+--- !u!1 &4818474452653346959
 GameObject:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -8,11 +8,11 @@ GameObject:
   m_PrefabAsset: {fileID: 0}
   serializedVersion: 6
   m_Component:
-  - component: {fileID: 1943531753273789614}
-  - component: {fileID: 9082578228938684374}
-  - component: {fileID: 5245801820209924029}
-  - component: {fileID: 7491833056789394902}
-  - component: {fileID: 2430907621834108168}
+  - component: {fileID: 5345091221879516429}
+  - component: {fileID: 2558376898725864491}
+  - component: {fileID: 3185406068722762495}
+  - component: {fileID: 7908942161410829009}
+  - component: {fileID: 1914432802403194922}
   m_Layer: 0
   m_Name: Boid
   m_TagString: Untagged
@@ -20,36 +20,36 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!4 &1943531753273789614
+--- !u!4 &5345091221879516429
 Transform:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3118979876328676307}
+  m_GameObject: {fileID: 4818474452653346959}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0.31686, y: 0.2218, z: 0.31686}
+  m_LocalPosition: {x: 547.83875, y: 0, z: 850.7603}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!33 &9082578228938684374
+--- !u!33 &2558376898725864491
 MeshFilter:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3118979876328676307}
+  m_GameObject: {fileID: 4818474452653346959}
   m_Mesh: {fileID: 10207, guid: 0000000000000000e000000000000000, type: 0}
---- !u!23 &5245801820209924029
+--- !u!23 &3185406068722762495
 MeshRenderer:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3118979876328676307}
+  m_GameObject: {fileID: 4818474452653346959}
   m_Enabled: 1
   m_CastShadows: 1
   m_ReceiveShadows: 1
@@ -88,13 +88,13 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
---- !u!135 &7491833056789394902
+--- !u!135 &7908942161410829009
 SphereCollider:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3118979876328676307}
+  m_GameObject: {fileID: 4818474452653346959}
   m_Material: {fileID: 0}
   m_IncludeLayers:
     serializedVersion: 2
@@ -104,42 +104,33 @@ SphereCollider:
     m_Bits: 0
   m_LayerOverridePriority: 0
   m_IsTrigger: 0
-  m_ProvidesContacts: 1
+  m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
   m_Radius: 0.5
   m_Center: {x: 0, y: 0, z: 0}
---- !u!114 &2430907621834108168
+--- !u!114 &1914432802403194922
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3118979876328676307}
+  m_GameObject: {fileID: 4818474452653346959}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 4f3ea4c5f6fb0e6429f5bb1e1ddc1389, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-<<<<<<< HEAD
+  profile: 0
+  baseBoidMaterial: {fileID: 2100000, guid: e1e10d94773fb034eb51bc70d5e535e9, type: 2}
+  slowBoidMaterial: {fileID: 2100000, guid: a79b7d2b23dfac64f860adb7ce4413f5, type: 2}
   visionRadius: 5
-  separationWeight: 2
-  alignmentWeight: 1
-  cohesionWeight: 1
+  separationWeight: 1.5
+  alignmentWeight: 7.23
+  cohesionWeight: 0.5
   centerOfMassWeight: 1
   maxSpeed: 5
-  maxForce: 0.5
+  maxForce: 1
   bounds: 10
   boundsForce: 10
-=======
-  visionRadius: 10
-  separationWeight: 10
-  alignmentWeight: 10
-  cohesionWeight: 15
-  centerOfMassWeight: 1
-  maxSpeed: 5
-  maxForce: 0.5
-  bounds: 100
-  boundsForce: 10000
->>>>>>> e8271fa9a4bdf711422e0472b008a9f6661ee53c
   boundsThreshold: 10

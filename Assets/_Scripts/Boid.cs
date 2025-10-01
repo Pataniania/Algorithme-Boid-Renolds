@@ -1,9 +1,19 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
-
+public enum BoidProfiles
+{
+    BASE,
+    SLOW,
+    LEADER
+}
 public class Boid : MonoBehaviour
 {
+
+    [SerializeField] private BoidProfiles profile = BoidProfiles.BASE;
+    [SerializeField] private Material baseBoidMaterial;
+    [SerializeField] private Material slowBoidMaterial;
+
     [SerializeField] private float visionRadius = 5f;
 
     [SerializeField] private float separationWeight = 1.5f;
@@ -28,12 +38,38 @@ public class Boid : MonoBehaviour
     private List<Boid> _neighborBuffer = new List<Boid>(100);
     private List<Boid> _neighbors;
 
+    private Material _material;
+
     void OnEnable() => _boidList.Add(this);
     void OnDisable() => _boidList.Remove(this);
 
     void Start()
     {
-        _velocity = UnityEngine.Random.insideUnitSphere * maxSpeed;
+
+        
+        switch (profile)
+        {
+            case BoidProfiles.BASE:
+                _velocity = new Vector3(
+                    UnityEngine.Random.Range(1f, maxSpeed),
+                    UnityEngine.Random.Range(1f, maxSpeed),
+                    UnityEngine.Random.Range(1f, maxSpeed)
+                    );
+
+                GetComponent<MeshRenderer>().material = baseBoidMaterial;
+                break;
+
+            case BoidProfiles.SLOW:
+
+                visionRadius = 4.5f;
+                cohesionWeight = 1.2f;
+                maxSpeed = 2.5f;
+                maxForce = 0.3f;
+
+                GetComponent<MeshRenderer>().material = slowBoidMaterial;
+
+                break;
+        }
     }
 
     void Update()
@@ -52,7 +88,7 @@ public class Boid : MonoBehaviour
         UpdateLookDir();
     }
 
-    private void UpdateLookDir()
+    void UpdateLookDir()
     {
         if (_velocity.sqrMagnitude > 0.01f)
             transform.forward = _velocity.normalized;
@@ -164,5 +200,19 @@ public class Boid : MonoBehaviour
     {
         _velocity += _acceleration * Time.deltaTime;
         _velocity = Vector3.ClampMagnitude(_velocity, maxSpeed);
+    }
+
+    void OnDrawGizmosSelected()
+    {
+        Gizmos.color = Color.yellow;
+        Gizmos.DrawWireSphere(transform.position, visionRadius);
+
+        Gizmos.color = Color.red;
+        Gizmos.DrawLine(transform.position, transform.position + _velocity);
+    }
+    public BoidProfiles BoidProfiles
+    {
+        get { return profile; }
+        set { profile = value; }
     }
 }
