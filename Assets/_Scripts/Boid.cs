@@ -5,6 +5,8 @@ public enum BoidProfiles
 {
     BASE,
     SLOW,
+    HERATIC,
+    POTOFGLUE,
     LEADER
 }
 public class Boid : MonoBehaviour
@@ -13,6 +15,8 @@ public class Boid : MonoBehaviour
     [SerializeField] private BoidProfiles profile = BoidProfiles.BASE;
     [SerializeField] private Material baseBoidMaterial;
     [SerializeField] private Material slowBoidMaterial;
+    [SerializeField] private Material potoMaterial;
+    [SerializeField] private Material heraticMaterial;
 
     [SerializeField] private float visionRadius = 5f;
 
@@ -39,6 +43,7 @@ public class Boid : MonoBehaviour
     private List<Boid> _neighbors;
 
     private Material _material;
+
 
     void OnEnable() => _boidList.Add(this);
     void OnDisable() => _boidList.Remove(this);
@@ -68,6 +73,29 @@ public class Boid : MonoBehaviour
 
                 GetComponent<MeshRenderer>().material = slowBoidMaterial;
 
+                break;
+            case BoidProfiles.HERATIC:
+                visionRadius = 2f;
+                separationWeight = 0.2f;
+                alignmentWeight = 0f;
+                cohesionWeight = 0.1f;
+                centerOfMassWeight = 0.1f;
+                maxSpeed = 6.5f;
+                maxForce = 0.8f;
+                boundsForce = 5f;
+                GetComponent<Renderer>().material = heraticMaterial;
+                break;
+
+            case BoidProfiles.POTOFGLUE:
+                visionRadius = 6f;
+                separationWeight = 2f;
+                alignmentWeight = 0.8f;
+                cohesionWeight = 1.5f;
+                centerOfMassWeight = 1.5f;
+                maxSpeed = 1.2f;
+                maxForce = 0.2f;
+                boundsForce = 12f;
+                GetComponent<Renderer>().material = potoMaterial;
                 break;
         }
     }

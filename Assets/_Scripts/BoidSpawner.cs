@@ -1,3 +1,6 @@
+using NUnit.Framework;
+using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 public class BoidSpawner : MonoBehaviour
@@ -6,7 +9,7 @@ public class BoidSpawner : MonoBehaviour
     [SerializeField] private int boidCount = 50;
     [SerializeField] private float spawnRadius = 10f;
 
-    [SerializeField][Range(0f, 1f)] private float baseProfileSpawnRate = .9f;
+    [SerializeField][UnityEngine.Range(0f, 1f)] private float baseProfileSpawnRate = .9f;
 
     void Start()
     {
@@ -15,17 +18,26 @@ public class BoidSpawner : MonoBehaviour
 
     void SpawnBoid()
     {
+        BoidProfiles[] allProfiles = (BoidProfiles[])Enum.GetValues(typeof(BoidProfiles));
+        List<BoidProfiles> specialProfiles = new List<BoidProfiles>();
+
+        foreach (BoidProfiles profile in allProfiles)
+        { 
+            if(profile != BoidProfiles.BASE)
+            {
+                specialProfiles.Add(profile);
+            }
+        }
+        
         for (int i = 0; i < boidCount; i++)
         {
-            //[Note(IVANIA)] A bit racist
+            
+            Vector3 spawnPosition = transform.position + UnityEngine.Random.insideUnitSphere * spawnRadius;
+            GameObject boidInstance = Instantiate(boidPrefab, spawnPosition, Quaternion.identity);
 
-            Boid boid = boidPrefab.GetComponent<Boid>();
-            boid.BoidProfiles = UnityEngine.Random.value < baseProfileSpawnRate
-                ? BoidProfiles.BASE
-                : BoidProfiles.SLOW;
+            Boid boid = boidInstance.GetComponent<Boid>();
 
-            Vector3 pos = transform.position + Random.insideUnitSphere * spawnRadius;
-            Instantiate(boidPrefab, pos, Quaternion.identity);
+            boid.BoidProfiles = i < specialProfiles.Count ? boid.BoidProfiles = specialProfiles[i] : BoidProfiles.BASE;
         }
     }
 

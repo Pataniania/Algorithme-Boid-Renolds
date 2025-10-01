@@ -124,6 +124,8 @@ MonoBehaviour:
   profile: 0
   baseBoidMaterial: {fileID: 2100000, guid: e1e10d94773fb034eb51bc70d5e535e9, type: 2}
   slowBoidMaterial: {fileID: 2100000, guid: a79b7d2b23dfac64f860adb7ce4413f5, type: 2}
+  potoMaterial: {fileID: 2100000, guid: ee8384872dee8124ca697f5feeac717d, type: 2}
+  heraticMaterial: {fileID: 2100000, guid: f7e5ad25b8c4acf458a08d46634f8a6f, type: 2}
   visionRadius: 5
   separationWeight: 1.5
   alignmentWeight: 7.23
