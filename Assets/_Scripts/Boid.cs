@@ -13,17 +13,19 @@ public class Boid : MonoBehaviour
 {
 
     [SerializeField] private BoidProfiles profile = BoidProfiles.BASE;
+
     [SerializeField] private Material baseBoidMaterial;
     [SerializeField] private Material slowBoidMaterial;
     [SerializeField] private Material potoMaterial;
     [SerializeField] private Material heraticMaterial;
+    [SerializeField] private Material leaderMaterial;
 
-    [SerializeField] private float visionRadius = 5f;
+    [SerializeField] private float visionRadius = 6f;
 
     [SerializeField] private float separationWeight = 1.5f;
     [SerializeField] private float alignmentWeight = 1.0f;
     [SerializeField] private float cohesionWeight = 1.0f;
-    [SerializeField] private float centerOfMassWeight = 1.0f;
+    [SerializeField] private float centerOfMassWeight = 0.8f;
 
     [SerializeField] private float maxSpeed = 5f;
     [SerializeField] private float maxForce = 0.5f;
@@ -43,6 +45,7 @@ public class Boid : MonoBehaviour
     private List<Boid> _neighbors;
 
     private Material _material;
+    private static Boid _leaderBoid;
 
 
     void OnEnable() => _boidList.Add(this);
@@ -50,11 +53,12 @@ public class Boid : MonoBehaviour
 
     void Start()
     {
-
+        
         
         switch (profile)
         {
             case BoidProfiles.BASE:
+
                 _velocity = new Vector3(
                     UnityEngine.Random.Range(1f, maxSpeed),
                     UnityEngine.Random.Range(1f, maxSpeed),
@@ -66,33 +70,83 @@ public class Boid : MonoBehaviour
 
             case BoidProfiles.SLOW:
 
-                visionRadius = 4.5f;
+                visionRadius = 5.5f;
                 cohesionWeight = 1.2f;
                 maxSpeed = 2.5f;
-                maxForce = 0.3f;
+                maxForce = 0.3f; visionRadius = 5.5f;
+
+                separationWeight = 1.2f;
+                alignmentWeight = 1.0f;
+                cohesionWeight = 1.5f;
+                centerOfMassWeight = 1.0f;
+
+                maxSpeed = 2.5f;
+                maxForce = 0.25f;
+
+                boundsForce = 10f;
 
                 GetComponent<MeshRenderer>().material = slowBoidMaterial;
 
                 break;
+
             case BoidProfiles.HERATIC:
-                visionRadius = 2f;
-                separationWeight = 0.2f;
-                alignmentWeight = 0f;
+                _velocity = new Vector3(
+                    UnityEngine.Random.Range(2f, maxSpeed),
+                    UnityEngine.Random.Range(2f, maxSpeed),
+                    UnityEngine.Random.Range(2f, maxSpeed)
+                );
+
+                visionRadius = 3.5f;
+                separationWeight = 0.1f;
+                alignmentWeight = 0.1f;
                 cohesionWeight = 0.1f;
-                centerOfMassWeight = 0.1f;
-                maxSpeed = 4.5f;
-                maxForce = 0.8f;
-                boundsForce = 5f;
+                centerOfMassWeight = 0f;
+
+                maxSpeed = 6.5f;
+                maxForce = 1.2f;
+
+                boundsForce = 4f;
+
                 GetComponent<Renderer>().material = heraticMaterial;
                 break;
 
             case BoidProfiles.POTOFGLUE:
-                visionRadius = 6f;
-                separationWeight = .1f;
-                alignmentWeight = 0.8f;
-                maxForce = .8f;
-                boundsForce = 12f;
+
+                _velocity = new Vector3(
+                    UnityEngine.Random.Range(1f, maxSpeed),
+                    UnityEngine.Random.Range(1f, maxSpeed),
+                    UnityEngine.Random.Range(1f, maxSpeed)
+                    );
+
+                maxSpeed = 5f;
+
+                visionRadius = 7.5f;
+
+                separationWeight = 0.1f;
+                alignmentWeight = 1.5f;
+                cohesionWeight = 1.2f;
+                centerOfMassWeight = 2.0f;
+
+                maxForce = 0.6f;
+
+                boundsForce = 14f;
+
                 GetComponent<Renderer>().material = potoMaterial;
+                break;
+
+            case BoidProfiles.LEADER:
+
+                _velocity = new Vector3(
+                    UnityEngine.Random.Range(1f, maxSpeed),
+                    UnityEngine.Random.Range(1f, maxSpeed),
+                    UnityEngine.Random.Range(1f, maxSpeed)
+                    );
+
+                _leaderBoid = this;
+                _leaderBoid.name = "Leader Boid";
+
+                GetComponent<Renderer>().material = leaderMaterial;
+
                 break;
         }
     }
@@ -108,11 +162,37 @@ public class Boid : MonoBehaviour
         //Update the boid velocity and clamp it
         UpdateBoidVelocity();
 
-        transform.position += _velocity * Time.deltaTime;
+        if(profile == BoidProfiles.LEADER)
+        {
+            UpdateLeader();
+        }
 
         UpdateLookDir();
     }
+    void UpdateLeader()
+    {
+        Vector3 targetPosition;
 
+        if(_leaderBoid != null)
+        {
+            targetPosition = Vector3.zero;
+        }
+        else
+        {
+            targetPosition = ApplyCenterOfMassForce();
+        }
+
+        Vector3  desired = targetPosition - transform.position;
+        desired = desired.normalized * maxSpeed;
+
+        Vector3 steer = desired - _velocity;
+        steer = Vector3.ClampMagnitude(steer, maxForce);
+
+        _acceleration = steer;
+
+        UpdateBoidVelocity();
+
+    }
     void UpdateLookDir()
     {
         if (_velocity.sqrMagnitude > 0.01f)
@@ -129,7 +209,7 @@ public class Boid : MonoBehaviour
 
             float dist = (other.transform.position - transform.position).sqrMagnitude;
 
-            if (dist < visionRadius)
+            if (dist < (visionRadius * visionRadius))
             {
                 _neighborBuffer.Add(other);
             }
@@ -167,6 +247,7 @@ public class Boid : MonoBehaviour
     {
        return SteerTowardsAverage(_boidList, b => b.transform.position, transform.position);
     }
+
     Vector3 KeepInBounds()
     {
         Vector3 force = Vector3.zero;
@@ -189,7 +270,6 @@ public class Boid : MonoBehaviour
         return force;
     }
 
-
     Vector3 SteerTowardsAverage(List<Boid> neighbors, Func<Boid, Vector3> selector, Vector3 currentPosition)
     {
         if (neighbors.Count == 0) return Vector3.zero;
@@ -207,6 +287,23 @@ public class Boid : MonoBehaviour
 
     private void ApplyForcesToBoid()
     {
+
+        if (_leaderBoid != null && profile != BoidProfiles.LEADER)
+        {
+            // Follow the leader's position
+            Vector3 toLeader = _leaderBoid.transform.position - transform.position;
+
+            float distanceToLeader = toLeader.magnitude;
+            float leaderFollowWeight = 5.0f;
+
+            // If far, prioritize leader-following more
+            if (distanceToLeader > 3f)
+            {
+                Vector3 leaderForce = toLeader.normalized * maxSpeed - _velocity;
+                leaderForce = Vector3.ClampMagnitude(leaderForce, maxForce);
+                _acceleration += leaderForce * leaderFollowWeight;
+            }
+        }
         if (_neighbors.Count > 0)
         {
             Vector3 _separation = Separation(_neighbors) * separationWeight;
@@ -225,6 +322,9 @@ public class Boid : MonoBehaviour
     {
         _velocity += _acceleration * Time.deltaTime;
         _velocity = Vector3.ClampMagnitude(_velocity, maxSpeed);
+
+        transform.position += _velocity * Time.deltaTime;
+
     }
 
     void OnDrawGizmosSelected()
@@ -235,6 +335,7 @@ public class Boid : MonoBehaviour
         Gizmos.color = Color.red;
         Gizmos.DrawLine(transform.position, transform.position + _velocity);
     }
+
     public BoidProfiles BoidProfiles
     {
         get { return profile; }
