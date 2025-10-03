@@ -166,22 +166,6 @@ public class Boid : MonoBehaviour
             transform.forward = _velocity.normalized;
     }
 
-    private void UpdateRandomTarget() 
-    {
-        float distanceToTarget = (_randomTargetPos - transform.position).magnitude;
-
-        if (!_hasBeenReached && distanceToTarget < 1f) // Close enough
-        {
-            _hasBeenReached = true;
-            StartCoroutine(GenerateRandomPos());
-        }
-    }
-    System.Collections.IEnumerator GenerateRandomPos() 
-    {
-        _randomTargetPos = UnityEngine.Random.insideUnitSphere * randomTargetRadius;
-        yield return new WaitForSeconds(2f);
-        _hasBeenReached = false;
-    }
     private void UpdateLeader()
     {
         if (_leaderBoid == null) return;
@@ -198,6 +182,9 @@ public class Boid : MonoBehaviour
         Vector3 steer = Vector3.ClampMagnitude(desired - _velocity, maxForce);
 
         _acceleration += steer;
+
+        _randomTargetPos = UnityEngine.Random.insideUnitSphere * randomTargetRadius;
+
     }
 
     private void GoTowardsLeader()

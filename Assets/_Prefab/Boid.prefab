@@ -108,8 +108,8 @@ MonoBehaviour:
   visionRadius: 5
   separationWeight: 2
   alignmentWeight: 0.5
-  cohesionWeight: 0.4
-  centerOfMassWeight: 0.5
+  cohesionWeight: 1.2
+  centerOfMassWeight: 0.6
   maxSpeed: 5
   maxForce: 1
   randomTargetRadius: 20
