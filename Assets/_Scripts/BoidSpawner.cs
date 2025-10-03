@@ -7,7 +7,6 @@ public class BoidSpawner : MonoBehaviour
     [SerializeField] private GameObject boidPrefab;
     [SerializeField] private int boidCount = 50;
     [SerializeField] private float spawnRadius = 10f;
-    [SerializeField, Range(0f, 1f)] private float baseProfileSpawnRate = 0.9f;
 
     private void Start()
     {

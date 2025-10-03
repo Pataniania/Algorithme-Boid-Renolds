@@ -11,7 +11,6 @@ GameObject:
   - component: {fileID: 5345091221879516429}
   - component: {fileID: 2558376898725864491}
   - component: {fileID: 3185406068722762495}
-  - component: {fileID: 7908942161410829009}
   - component: {fileID: 1914432802403194922}
   m_Layer: 0
   m_Name: Boid
@@ -88,27 +87,6 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
---- !u!135 &7908942161410829009
-SphereCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4818474452653346959}
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_IsTrigger: 0
-  m_ProvidesContacts: 0
-  m_Enabled: 1
-  serializedVersion: 3
-  m_Radius: 0.5
-  m_Center: {x: 0, y: 0, z: 0}
 --- !u!114 &1914432802403194922
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -128,12 +106,13 @@ MonoBehaviour:
   heraticMaterial: {fileID: 2100000, guid: f7e5ad25b8c4acf458a08d46634f8a6f, type: 2}
   leaderMaterial: {fileID: 2100000, guid: c14f3c4d2ef3c19409a9dce4fedfa3e3, type: 2}
   visionRadius: 5
-  separationWeight: 1
-  alignmentWeight: 1
-  cohesionWeight: 0.8
-  centerOfMassWeight: 1
+  separationWeight: 2
+  alignmentWeight: 0.5
+  cohesionWeight: 0.4
+  centerOfMassWeight: 0.5
   maxSpeed: 5
   maxForce: 1
-  bounds: 10
-  boundsForce: 10
+  randomTargetRadius: 20
+  bounds: 5
+  boundsForce: 5
   boundsThreshold: 10

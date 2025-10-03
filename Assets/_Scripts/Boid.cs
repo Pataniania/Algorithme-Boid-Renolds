@@ -33,6 +33,7 @@ public class Boid : MonoBehaviour
     [Header("Movement Constraints")]
     [SerializeField] private float maxSpeed = 5f;
     [SerializeField] private float maxForce = 0.5f;
+    [SerializeField] private float randomTargetRadius = 10000f;
 
     [Header("Bounds Settings")]
     [SerializeField] private float bounds = 10f;
@@ -49,6 +50,9 @@ public class Boid : MonoBehaviour
     private List<Boid> _neighbors;
 
     private static Boid _leaderBoid;
+    private bool _hasBeenReached;
+
+
 
     // === Unity Lifecycle ===
     private void OnEnable() => _boidList.Add(this);
@@ -72,13 +76,14 @@ public class Boid : MonoBehaviour
         if (profile == BoidProfiles.LEADER)
         {
             UpdateLeader();
+            //UpdateRandomTarget();
         }
     }
 
     // === Initialization ===
     private void InitializeBoid()
     {
-        _randomTargetPos = UnityEngine.Random.insideUnitSphere * 20f;
+        _randomTargetPos = UnityEngine.Random.insideUnitSphere * randomTargetRadius;
 
         switch (profile)
         {
@@ -99,26 +104,14 @@ public class Boid : MonoBehaviour
                 GetComponent<Renderer>().material = slowBoidMaterial;
                 break;
 
-            case BoidProfiles.HERATIC:
-                visionRadius = 3.5f;
-                separationWeight = 0.1f;
-                alignmentWeight = 0.1f;
-                cohesionWeight = 0.1f;
-                centerOfMassWeight = 0f;
-                maxSpeed = 6.5f;
-                maxForce = 1.2f;
-                boundsForce = 4f;
-                _velocity = UnityEngine.Random.insideUnitSphere * maxSpeed;
-                GetComponent<Renderer>().material = heraticMaterial;
-                break;
 
             case BoidProfiles.POTOFGLUE:
                 visionRadius = 7.5f;
-                separationWeight = 0.1f;
-                alignmentWeight = 1.5f;
-                cohesionWeight = 1.2f;
+                separationWeight = 0.01f;
+                alignmentWeight = 3.5f;
+                cohesionWeight = 3.2f;
                 centerOfMassWeight = 2.0f;
-                maxSpeed = 5f;
+                maxSpeed = 6f;
                 maxForce = 0.6f;
                 boundsForce = 14f;
                 _velocity = UnityEngine.Random.insideUnitSphere * maxSpeed;
@@ -139,7 +132,6 @@ public class Boid : MonoBehaviour
     {
         GoTowardsLeader();
         _acceleration += CalculateFlockingForce(_neighbors);
-        UpdateRandomTarget();
         ApplyAdditionalForces();
     }
 
@@ -174,22 +166,38 @@ public class Boid : MonoBehaviour
             transform.forward = _velocity.normalized;
     }
 
-    private void UpdateRandomTarget()
+    private void UpdateRandomTarget() 
     {
-        if ((_randomTargetPos - transform.position).magnitude > 3f)
+        float distanceToTarget = (_randomTargetPos - transform.position).magnitude;
+
+        if (!_hasBeenReached && distanceToTarget < 1f) // Close enough
         {
-            _randomTargetPos = UnityEngine.Random.insideUnitSphere * 20f;
+            _hasBeenReached = true;
+            StartCoroutine(GenerateRandomPos());
         }
     }
-
+    System.Collections.IEnumerator GenerateRandomPos() 
+    {
+        _randomTargetPos = UnityEngine.Random.insideUnitSphere * randomTargetRadius;
+        yield return new WaitForSeconds(2f);
+        _hasBeenReached = false;
+    }
     private void UpdateLeader()
     {
-        Vector3 target = _leaderBoid != null ? _randomTargetPos : ApplyCenterOfMassForce();
-        Vector3 desired = target.normalized * maxSpeed;
+        if (_leaderBoid == null) return;
+
+        Vector3 toTarget = _randomTargetPos - transform.position;
+        float distance = toTarget.magnitude;
+
+        // Slow down as we get closer
+        float slowingRadius = 5f;
+        float speed = Mathf.Lerp(0, maxSpeed, distance / slowingRadius);
+        speed = Mathf.Min(speed, maxSpeed);
+
+        Vector3 desired = toTarget.normalized * speed;
         Vector3 steer = Vector3.ClampMagnitude(desired - _velocity, maxForce);
 
-        _acceleration = steer;
-        UpdateBoidVelocity();
+        _acceleration += steer;
     }
 
     private void GoTowardsLeader()
@@ -202,7 +210,7 @@ public class Boid : MonoBehaviour
             if (distance > 3f)
             {
                 Vector3 leaderForce = Vector3.ClampMagnitude(toLeader.normalized * maxSpeed - _velocity, maxForce);
-                _acceleration += leaderForce * 100f; // Strong leader pull
+                _acceleration += leaderForce * 3f;
             }
         }
     }
@@ -293,6 +301,10 @@ public class Boid : MonoBehaviour
 
         Gizmos.color = Color.red;
         Gizmos.DrawLine(transform.position, transform.position + _velocity);
+
+        // Optional: Draw the full random range boundary (gray)
+        Gizmos.color = Color.gray;
+        Gizmos.DrawWireSphere(Vector3.zero, randomTargetRadius);
     }
 
     // === Properties ===
