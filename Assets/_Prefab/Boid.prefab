@@ -130,7 +130,7 @@ MonoBehaviour:
   visionRadius: 5
   separationWeight: 1
   alignmentWeight: 1
-  cohesionWeight: 1
+  cohesionWeight: 0.8
   centerOfMassWeight: 1
   maxSpeed: 5
   maxForce: 1
