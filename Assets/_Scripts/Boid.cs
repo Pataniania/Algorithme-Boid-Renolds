@@ -36,7 +36,7 @@ public class Boid : MonoBehaviour
     [SerializeField] private float randomTargetRadius = 10000f;
 
     [Header("Bounds Settings")]
-    [SerializeField] private float bounds = 10f;
+    [SerializeField] private float bounds = 20f;
     [SerializeField] private float boundsForce = 10f;
     [SerializeField] private float boundsThreshold = 10f;
 
@@ -66,7 +66,7 @@ public class Boid : MonoBehaviour
     private void Update()
     {
         _acceleration = Vector3.zero;
-
+        bounds = randomTargetRadius;
         _neighbors = GetNeighbors();
 
         ApplyForcesToBoid();
@@ -78,6 +78,7 @@ public class Boid : MonoBehaviour
             UpdateLeader();
             //UpdateRandomTarget();
         }
+
     }
 
     // === Initialization ===
@@ -122,6 +123,7 @@ public class Boid : MonoBehaviour
                 _velocity = UnityEngine.Random.insideUnitSphere * maxSpeed;
                 _leaderBoid = this;
                 name = "Leader Boid";
+
                 GetComponent<Renderer>().material = leaderMaterial;
                 break;
         }
